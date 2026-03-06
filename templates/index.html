@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AI Multi-Layer Scam Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+<div class="bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-2xl">
+
+    <h1 class="text-3xl font-bold text-center mb-6">
+        🚨 AI Multi-Layer Scam Detection System
+    </h1>
+
+    <!-- Input Box -->
+    <textarea id="inputText"
+        rows="6"
+        class="w-full p-4 rounded-lg text-black"
+        placeholder="Start typing suspicious message..."></textarea>
+
+    <!-- Result Box -->
+    <div class="mt-6 p-4 bg-gray-700 rounded-lg hidden" id="resultBox">
+
+        <h2 class="text-xl font-semibold mb-2">
+            Final Risk Score
+        </h2>
+
+        <div id="riskText" class="text-4xl font-bold"></div>
+
+        <!-- Risk Bar -->
+        <div class="w-full bg-gray-600 rounded-full h-4 mt-4">
+            <div id="riskBar" class="h-4 rounded-full"></div>
+        </div>
+
+        <!-- Layer Breakdown -->
+        <div class="mt-4 text-sm space-y-1">
+
+            <p>NLP Score:
+                <span id="nlpScore"></span>%
+            </p>
+
+            <p>URL Score:
+                <span id="urlScore"></span>%
+            </p>
+
+            <p>Behavior Score:
+                <span id="behaviorScore"></span>%
+            </p>
+
+            <p class="mt-2">
+                NLP Flagged Words:
+                <span id="nlpFlags" class="text-red-400 font-semibold"></span>
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Dashboard Button -->
+    <div class="text-center mt-6">
+
+        <a href="/dashboard" target="_blank">
+            <button class="bg-blue-500 hover:bg-blue-600 px-5 py-2 rounded-lg font-semibold">
+                📊 Open Dashboard
+            </button>
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+
+const textarea = document.getElementById("inputText");
+const resultBox = document.getElementById("resultBox");
+const riskText = document.getElementById("riskText");
+const riskBar = document.getElementById("riskBar");
+
+const nlpScore = document.getElementById("nlpScore");
+const urlScore = document.getElementById("urlScore");
+const behaviorScore = document.getElementById("behaviorScore");
+const nlpFlags = document.getElementById("nlpFlags");
+
+let timeout = null;
+
+textarea.addEventListener("input", function(){
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+
+        if(textarea.value.trim().length === 0){
+            resultBox.classList.add("hidden");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("text", textarea.value);
+
+        fetch("/api/predict", {
+            method: "POST",
+            body: formData
+        })
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            resultBox.classList.remove("hidden");
+
+            let score = parseFloat(data.final_score);
+
+            riskText.innerText = score + "% (" + data.risk_level + ")";
+            riskBar.style.width = score + "%";
+
+            if(score >= 70){
+                riskBar.className = "h-4 rounded-full bg-red-500";
+                riskText.className = "text-4xl font-bold text-red-500";
+            }
+
+            else if(score >= 40){
+                riskBar.className = "h-4 rounded-full bg-yellow-400";
+                riskText.className = "text-4xl font-bold text-yellow-400";
+            }
+
+            else{
+                riskBar.className = "h-4 rounded-full bg-green-400";
+                riskText.className = "text-4xl font-bold text-green-400";
+            }
+
+            nlpScore.innerText = data.nlp_score;
+            urlScore.innerText = data.url_score;
+            behaviorScore.innerText = data.behavior_score;
+
+            nlpFlags.innerText = data.nlp_flags.join(", ");
+
+        });
+
+    }, 500);
+
+});
+
+</script>
+
+</body>
+</html>

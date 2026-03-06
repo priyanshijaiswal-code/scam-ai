@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Risk Analytics Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Auto refresh every 5 seconds -->
+    <meta http-equiv="refresh" content="5">
+</head>
+
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+<div class="bg-gray-800 p-10 rounded-2xl shadow-xl w-full max-w-2xl">
+
+    <h1 class="text-3xl font-bold text-center mb-8">
+        📊 Risk Analytics Dashboard
+    </h1>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 gap-4 text-lg mb-8">
+
+        <div class="bg-gray-700 p-4 rounded-lg">
+            Total Scans: <span class="font-bold">{{ total }}</span>
+        </div>
+
+        <div class="bg-red-600 p-4 rounded-lg">
+            High Risk: <span class="font-bold">{{ high }}</span>
+        </div>
+
+        <div class="bg-yellow-500 text-black p-4 rounded-lg">
+            Medium Risk: <span class="font-bold">{{ medium }}</span>
+        </div>
+
+        <div class="bg-green-600 p-4 rounded-lg">
+            Low Risk: <span class="font-bold">{{ low }}</span>
+        </div>
+
+    </div>
+
+    <!-- Chart -->
+    <canvas id="riskChart"></canvas>
+
+</div>
+
+<script>
+const ctx = document.getElementById('riskChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['High Risk', 'Medium Risk', 'Low Risk'],
+        datasets: [{
+            label: 'Risk Distribution',
+            data: [{{ high }}, {{ medium }}, {{ low }}],
+            backgroundColor: [
+                'rgba(239, 68, 68, 0.8)',
+                'rgba(234, 179, 8, 0.8)',
+                'rgba(34, 197, 94, 0.8)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
